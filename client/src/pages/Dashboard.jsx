@@ -76,163 +76,158 @@ const Dashboard = () => {
 
   const isOverdue = (createdAt) => new Date() - new Date(createdAt) > 72 * 60 * 60 * 1000;
 
+  const inputCls = 'w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500';
+  const btnBlue = 'bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium disabled:opacity-50';
+  const btnGreen = 'bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-medium disabled:opacity-50';
+  const btnGray = 'bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded text-sm font-medium disabled:opacity-50';
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-100">
       <Navbar />
-      <div className="max-w-5xl mx-auto p-6 space-y-6">
+
+      <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4">
-          {[
-            { label: "Today's Parcels", value: stats.todayCount },
-            { label: 'Pending Pickups', value: stats.pendingCount },
-            { label: 'Overdue (72h+)', value: stats.overdueCount, red: true },
-          ].map(({ label, value, red }) => (
-            <div key={label} className={`rounded shadow p-4 text-center ${red ? 'bg-red-50 border border-red-300' : 'bg-white'}`}>
-              <p className="text-3xl font-bold text-blue-700">{value}</p>
-              <p className="text-sm text-gray-600">{label}</p>
-            </div>
-          ))}
+          <div className="bg-white rounded-lg shadow-sm p-4 text-center border-t-4 border-blue-500">
+            <p className="text-3xl font-bold text-blue-600">{stats.todayCount}</p>
+            <p className="text-sm text-gray-500 mt-1">Today's Parcels</p>
+          </div>
+          <div className="bg-white rounded-lg shadow-sm p-4 text-center border-t-4 border-yellow-400">
+            <p className="text-3xl font-bold text-yellow-500">{stats.pendingCount}</p>
+            <p className="text-sm text-gray-500 mt-1">Pending Pickups</p>
+          </div>
+          <div className="bg-white rounded-lg shadow-sm p-4 text-center border-t-4 border-red-500">
+            <p className="text-3xl font-bold text-red-500">{stats.overdueCount}</p>
+            <p className="text-sm text-gray-500 mt-1">Overdue (72h+)</p>
+          </div>
         </div>
 
-        {/* Log New Parcel */}
-        <div className="bg-white rounded shadow p-5">
-          <h3 className="font-semibold text-lg mb-3">Log New Parcel</h3>
-          <form onSubmit={handleLogParcel} className="flex flex-wrap gap-3">
-            <input
-              className="border rounded px-3 py-2 flex-1 min-w-[150px]"
-              placeholder="Tracking ID"
-              value={newParcel.trackingId}
-              onChange={(e) => setNewParcel({ ...newParcel, trackingId: e.target.value })}
-              required
-            />
-            <select
-              className="border rounded px-3 py-2"
-              value={newParcel.courierCompany}
-              onChange={(e) => setNewParcel({ ...newParcel, courierCompany: e.target.value })}
-            >
-              {COURIERS.map((c) => <option key={c}>{c}</option>)}
-            </select>
-            <input
-              className="border rounded px-3 py-2 flex-1 min-w-[150px]"
-              placeholder="Student Roll Number"
-              value={newParcel.recipientRoll}
-              onChange={(e) => setNewParcel({ ...newParcel, recipientRoll: e.target.value })}
-              required
-            />
-            <button
-              className="bg-blue-700 text-white px-4 py-2 rounded font-medium disabled:opacity-60"
-              disabled={loadingLog}
-            >
-              {loadingLog ? 'Logging...' : 'Log Parcel'}
-            </button>
-          </form>
+        {/* Log + Release */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          <div className="bg-white rounded-lg shadow-sm p-5">
+            <h3 className="font-semibold text-gray-700 mb-4">📥 Log New Parcel</h3>
+            <form onSubmit={handleLogParcel} className="space-y-3">
+              <div>
+                <label className="text-xs text-gray-500 mb-1 block">Tracking ID</label>
+                <input className={inputCls} placeholder="e.g. AMZ123456" value={newParcel.trackingId}
+                  onChange={(e) => setNewParcel({ ...newParcel, trackingId: e.target.value })} required />
+              </div>
+              <div>
+                <label className="text-xs text-gray-500 mb-1 block">Courier</label>
+                <select className={inputCls} value={newParcel.courierCompany}
+                  onChange={(e) => setNewParcel({ ...newParcel, courierCompany: e.target.value })}>
+                  {COURIERS.map((c) => <option key={c}>{c}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="text-xs text-gray-500 mb-1 block">Student Roll Number</label>
+                <input className={inputCls} placeholder="e.g. CS2021001" value={newParcel.recipientRoll}
+                  onChange={(e) => setNewParcel({ ...newParcel, recipientRoll: e.target.value })} required />
+              </div>
+              <button className={btnBlue} disabled={loadingLog}>
+                {loadingLog ? 'Logging...' : 'Log Parcel'}
+              </button>
+            </form>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-sm p-5">
+            <h3 className="font-semibold text-gray-700 mb-4">🔓 Release Parcel</h3>
+            <p className="text-sm text-gray-500 mb-4">Enter the 4-digit OTP the student received on their email.</p>
+            <form onSubmit={handleRelease} className="space-y-3">
+              <div>
+                <label className="text-xs text-gray-500 mb-1 block">OTP</label>
+                <input
+                  className="w-full border border-gray-300 rounded px-3 py-3 text-2xl font-bold tracking-widest text-center focus:outline-none focus:border-blue-500"
+                  placeholder="0000"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/, '').slice(0, 4))}
+                  maxLength={4}
+                  required
+                />
+              </div>
+              <button className={btnGreen} disabled={loadingRelease}>
+                {loadingRelease ? 'Releasing...' : 'Verify & Release'}
+              </button>
+            </form>
+          </div>
         </div>
 
-        {/* Release Parcel */}
-        <div className="bg-white rounded shadow p-5">
-          <h3 className="font-semibold text-lg mb-3">Release Parcel (OTP Verify)</h3>
-          <form onSubmit={handleRelease} className="flex gap-3">
-            <input
-              className="border rounded px-3 py-2 w-40 tracking-widest text-center text-lg"
-              placeholder="0000"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value.replace(/\D/, '').slice(0, 4))}
-              maxLength={4}
-              required
-            />
-            <button
-              className="bg-green-600 text-white px-4 py-2 rounded font-medium disabled:opacity-60"
-              disabled={loadingRelease}
-            >
-              {loadingRelease ? 'Releasing...' : 'Release'}
-            </button>
-          </form>
-        </div>
-
-        {/* Search by Roll */}
-        <div className="bg-white rounded shadow p-5">
-          <h3 className="font-semibold text-lg mb-3">Search Parcels by Roll Number</h3>
+        {/* Search */}
+        <div className="bg-white rounded-lg shadow-sm p-5">
+          <h3 className="font-semibold text-gray-700 mb-4">🔍 Search by Roll Number</h3>
           <form onSubmit={handleSearch} className="flex gap-3 mb-4">
-            <input
-              className="border rounded px-3 py-2 flex-1"
-              placeholder="Roll Number"
-              value={searchRoll}
-              onChange={(e) => setSearchRoll(e.target.value)}
-              required
-            />
-            <button
-              className="bg-gray-700 text-white px-4 py-2 rounded font-medium disabled:opacity-60"
-              disabled={loadingSearch}
-            >
+            <input className={inputCls} placeholder="Enter roll number..." value={searchRoll}
+              onChange={(e) => setSearchRoll(e.target.value)} required />
+            <button className={btnGray} disabled={loadingSearch}>
               {loadingSearch ? 'Searching...' : 'Search'}
             </button>
           </form>
+
           {searchResults && (
-            <>
-              <p className="text-sm text-gray-600 mb-2">
-                {searchResults.student.name} — {searchResults.student.email}
+            <div>
+              <p className="text-sm text-gray-600 mb-3">
+                <span className="font-medium">{searchResults.student.name}</span> — {searchResults.student.email}
               </p>
               {searchResults.parcels.length === 0 ? (
                 <p className="text-sm text-gray-400">No parcels found for this student.</p>
               ) : (
-                <table className="w-full text-sm border-collapse">
-                  <thead>
-                    <tr className="bg-gray-100">
-                      <th className="border px-3 py-2 text-left">Tracking ID</th>
-                      <th className="border px-3 py-2 text-left">Courier</th>
-                      <th className="border px-3 py-2 text-left">Status</th>
-                      <th className="border px-3 py-2 text-left">Date</th>
+                <table className="w-full text-sm border border-gray-200 rounded">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      {['Tracking ID', 'Courier', 'Status', 'Date'].map((h) => (
+                        <th key={h} className="text-left px-3 py-2 text-xs text-gray-500 font-medium">{h}</th>
+                      ))}
                     </tr>
                   </thead>
                   <tbody>
                     {searchResults.parcels.map((p) => (
-                      <tr key={p._id}>
-                        <td className="border px-3 py-2">{p.trackingId}</td>
-                        <td className="border px-3 py-2">{p.courierCompany}</td>
-                        <td className="border px-3 py-2">
-                          <span className={`text-xs font-medium px-2 py-1 rounded ${p.status === 'PickedUp' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                      <tr key={p._id} className="border-t border-gray-100">
+                        <td className="px-3 py-2">{p.trackingId}</td>
+                        <td className="px-3 py-2">{p.courierCompany}</td>
+                        <td className="px-3 py-2">
+                          <span className={`text-xs px-2 py-0.5 rounded font-medium ${p.status === 'PickedUp' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
                             {p.status}
                           </span>
                         </td>
-                        <td className="border px-3 py-2">{new Date(p.createdAt).toLocaleDateString()}</td>
+                        <td className="px-3 py-2 text-gray-500">{new Date(p.createdAt).toLocaleDateString()}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               )}
-            </>
+            </div>
           )}
         </div>
 
-        {/* Pending Parcels List */}
-        <div className="bg-white rounded shadow p-5">
-          <h3 className="font-semibold text-lg mb-3">Pending Parcels</h3>
+        {/* Pending Parcels */}
+        <div className="bg-white rounded-lg shadow-sm p-5">
+          <h3 className="font-semibold text-gray-700 mb-4">📋 Pending Parcels</h3>
           {stats.pendingParcels.length === 0 ? (
-            <p className="text-gray-500 text-sm">No pending parcels.</p>
+            <p className="text-sm text-gray-400">No pending parcels right now.</p>
           ) : (
-            <table className="w-full text-sm border-collapse">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="border px-3 py-2 text-left">Tracking ID</th>
-                  <th className="border px-3 py-2 text-left">Courier</th>
-                  <th className="border px-3 py-2 text-left">Student</th>
-                  <th className="border px-3 py-2 text-left">Roll</th>
-                  <th className="border px-3 py-2 text-left">Arrived</th>
+            <table className="w-full text-sm border border-gray-200 rounded">
+              <thead className="bg-gray-50">
+                <tr>
+                  {['Tracking ID', 'Courier', 'Student', 'Roll No.', 'Arrived', 'Status'].map((h) => (
+                    <th key={h} className="text-left px-3 py-2 text-xs text-gray-500 font-medium">{h}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
                 {stats.pendingParcels.map((p) => (
-                  <tr key={p._id} className={isOverdue(p.createdAt) ? 'bg-red-50' : ''}>
-                    <td className="border px-3 py-2">{p.trackingId}</td>
-                    <td className="border px-3 py-2">{p.courierCompany}</td>
-                    <td className="border px-3 py-2">{p.recipient?.name}</td>
-                    <td className="border px-3 py-2">{p.recipient?.rollNumber}</td>
-                    <td className="border px-3 py-2">
-                      {new Date(p.createdAt).toLocaleString()}
-                      {isOverdue(p.createdAt) && (
-                        <span className="ml-2 text-xs text-red-600 font-semibold">Overdue</span>
-                      )}
+                  <tr key={p._id} className={`border-t border-gray-100 ${isOverdue(p.createdAt) ? 'bg-red-50' : ''}`}>
+                    <td className="px-3 py-2">{p.trackingId}</td>
+                    <td className="px-3 py-2">{p.courierCompany}</td>
+                    <td className="px-3 py-2">{p.recipient?.name}</td>
+                    <td className="px-3 py-2 text-gray-500">{p.recipient?.rollNumber}</td>
+                    <td className="px-3 py-2 text-gray-500">{new Date(p.createdAt).toLocaleString()}</td>
+                    <td className="px-3 py-2">
+                      {isOverdue(p.createdAt)
+                        ? <span className="text-xs px-2 py-0.5 rounded font-medium bg-red-100 text-red-600">Overdue</span>
+                        : <span className="text-xs px-2 py-0.5 rounded font-medium bg-yellow-100 text-yellow-700">Pending</span>
+                      }
                     </td>
                   </tr>
                 ))}
