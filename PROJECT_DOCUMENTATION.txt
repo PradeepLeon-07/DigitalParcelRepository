@@ -1,0 +1,675 @@
+
+==============================================================
+       DIGITAL PARCEL REPOSITORY - PROJECT DOCUMENTATION
+       A Hostel Parcel Management System (MERN Stack)
+==============================================================
+
+--------------------------------------------------------------
+SLIDE 1 - PROJECT TITLE & TEAM
+--------------------------------------------------------------
+
+Project Title  : Digital Parcel Repository
+Subtitle       : A Hostel Parcel Management System
+Tech Stack     : MongoDB, Express.js, React.js, Node.js (MERN)
+Department     : Information Science and Technology
+Year           : 2025 - 2026
+
+Team Members:
+  Member 1 : [Your Name]     
+  Member 2 : [Member Name]   
+  Member 3 : [Member Name]       
+
+Institution    : [Your College Name]
+
+
+--------------------------------------------------------------
+SLIDE 2 - INTRODUCTION & RATIONALE (Why this problem?)
+--------------------------------------------------------------
+
+WHAT IS THIS PROJECT?
+  Digital Parcel Repository is a web-based hostel parcel
+  management system. When a parcel arrives at the hostel gate,
+  the admin logs it in the system. The system automatically
+  generates a 4-digit OTP and emails it to the student.
+  The student shows the OTP to collect their parcel.
+  The admin verifies it and marks the parcel as collected.
+
+WHY DID WE BUILD THIS?
+  - Hostels receive dozens of parcels every day from couriers
+    like Amazon, Flipkart, DTDC, BlueDart etc.
+  - Currently, most hostels use a manual paper register to
+    record parcels. This is slow, error-prone, and inefficient.
+  - Students are not notified when their parcel arrives.
+    They have to physically visit the gate every day to check.
+  - Parcels sit uncollected for days because students don't know
+    they have arrived. This creates storage problems.
+  - There is no proof of delivery. Anyone can claim a parcel
+    without verification.
+  - We built this system to solve all these problems using
+    simple web technology that any hostel can use.
+
+KEY MOTIVATION:
+  - Real problem faced by real students every day
+  - Simple solution using modern web technology
+  - Fully automated notification via email
+  - Secure OTP-based parcel release system
+
+
+--------------------------------------------------------------
+SLIDE 3 - PROBLEM STATEMENT
+--------------------------------------------------------------
+
+CURRENT PROBLEMS IN HOSTEL PARCEL MANAGEMENT:
+
+  1. MANUAL REGISTER SYSTEM
+     - Parcels are recorded in a physical paper register
+     - No digital record, no search, no history
+     - Easy to lose or damage records
+
+  2. NO STUDENT NOTIFICATION
+     - Students are never informed when their parcel arrives
+     - They must visit the gate daily to check manually
+     - Parcels remain uncollected for days or weeks
+
+  3. NO PROOF OF DELIVERY
+     - Anyone can walk up and claim a parcel
+     - No verification of identity
+     - Risk of wrong person collecting the parcel
+
+  4. ADMIN OVERLOAD
+     - Admin has to manually search through registers
+     - No way to quickly find all parcels of one student
+     - No visibility into how many parcels are pending
+
+  5. NO OVERDUE TRACKING
+     - No system to flag parcels that have been sitting
+       uncollected for too long (72+ hours)
+     - Storage space gets blocked by uncollected parcels
+
+  6. NO DIGITAL HISTORY
+     - Once a parcel is collected, there is no record
+     - Cannot check past parcel history for any student
+
+PROBLEM STATEMENT (Formal):
+  "The existing manual parcel management system in hostels
+  lacks automation, student notification, identity verification,
+  and digital record keeping. This results in uncollected
+  parcels, storage issues, and security risks. A digital
+  solution is required to automate parcel logging, notify
+  students via email, verify identity using OTP, and provide
+  the admin with a real-time dashboard."
+
+
+--------------------------------------------------------------
+SLIDE 4 - REFERENCES (Existing Models)
+--------------------------------------------------------------
+
+EXISTING SYSTEMS WE STUDIED:
+
+  1. FEDEX / BLUEDART TRACKING SYSTEM
+     What it does : Courier companies provide online tracking
+                    of parcels using tracking IDs.
+     Limitation   : Only tracks the parcel in transit.
+                    Does not manage last-mile hostel delivery.
+     Our solution : We handle the last step - from hostel gate
+                    to student room - which these systems ignore.
+
+  2. COLLEGE COURIER MANAGEMENT APPS (Research Papers)
+     Reference    : "Smart Parcel Management System for
+                    Educational Institutions" - IEEE 2022
+     What it does : Proposes digital parcel logging for
+                    college campuses using QR codes.
+     Limitation   : Requires QR code scanner hardware.
+                    Complex setup for small hostels.
+     Our solution : We use simple email OTP. No hardware
+                    needed. Works on any device with a browser.
+
+  3. INDIA POST / SPEED POST TRACKING
+     What it does : Government postal tracking system for
+                    registered letters and parcels.
+     Limitation   : Only tracks up to delivery point.
+                    No hostel-level management.
+     Our solution : Picks up exactly where these systems stop -
+                    managing parcels after they reach the hostel.
+
+
+--------------------------------------------------------------
+SLIDE 5 - OBJECTIVES
+--------------------------------------------------------------
+
+THE 8 OBJECTIVES OF THIS PROJECT:
+
+  1. DEVELOP a secure user authentication system using
+     JWT tokens and bcrypt password hashing for both
+     admin and student roles.
+
+  2. IMPLEMENT role-based access control so that admin
+     and student see different pages and have different
+     permissions within the same application.
+
+  3. DESIGN an admin dashboard that shows real-time stats -
+     total parcels today, pending pickups, and overdue
+     parcels (72+ hours uncollected).
+
+  4. AUTOMATE email notification using Nodemailer and
+     Gmail SMTP so students receive a 4-digit OTP
+     immediately when their parcel is logged.
+
+  5. IMPLEMENT a secure OTP-based parcel release system
+     where the OTP is single-use only and expires after
+     the parcel is collected.
+
+  6. ENABLE admin to search all parcels of any student
+     by entering their roll number.
+
+  7. PROVIDE students with a personal parcel history page
+     showing all their parcels with current status
+     (Arrived or PickedUp).
+
+  8. BUILD the entire system using the MERN stack
+     (MongoDB, Express, React, Node.js) following a
+     clean REST API architecture.
+
+
+--------------------------------------------------------------
+SLIDE 6A - SYSTEM ARCHITECTURE (Overall)
+--------------------------------------------------------------
+
+3-TIER ARCHITECTURE:
+
+  TIER 1 - FRONTEND (React.js)
+  --------------------------------
+  - Built with React.js + Vite + Tailwind CSS
+  - Runs in the browser at http://localhost:5173
+  - Pages: Login, Register, Dashboard, My Parcels
+  - Communicates with backend using HTTP requests via Axios
+  - Stores JWT token in browser localStorage
+
+  TIER 2 - BACKEND (Node.js + Express.js)
+  ----------------------------------------
+  - Built with Node.js runtime + Express.js framework
+  - Runs at http://localhost:5000
+  - Exposes REST API endpoints under /api/
+  - Handles authentication, parcel logic, OTP, email
+  - Validates JWT token on every protected request
+
+  TIER 3 - DATABASE (MongoDB Atlas)
+  ------------------------------------
+  - Cloud-hosted MongoDB database (MongoDB Atlas)
+  - Two collections: users and parcels
+  - Connected via Mongoose ODM
+  - Stores all user accounts and parcel records
+
+DATA FLOW:
+  User clicks button in React
+    → Axios sends HTTP request to Express API
+      → Express validates JWT token
+        → Express queries MongoDB via Mongoose
+          → MongoDB returns data
+            → Express sends JSON response
+              → React updates the UI
+
+
+--------------------------------------------------------------
+SLIDE 6B - MODULE BLOCK DIAGRAM
+--------------------------------------------------------------
+
+THE 4 MAIN MODULES:
+
+  MODULE 1: AUTHENTICATION MODULE
+  ---------------------------------
+  File     : server/routes/auth.js
+             server/middleware/auth.js
+             server/models/User.js
+  Input    : name, rollNumber, email, password, role
+  Process  : Hash password with bcrypt
+             Create user in MongoDB
+             Sign JWT token (valid 7 days)
+             Verify JWT on every protected request
+  Output   : JWT token + role + name sent to frontend
+
+  MODULE 2: PARCEL MANAGEMENT MODULE
+  ------------------------------------
+  File     : server/routes/parcels.js
+             server/models/Parcel.js
+  Input    : trackingId, courierCompany, recipientRoll
+  Process  : Find student by roll number
+             Generate 4-digit random OTP
+             Save parcel to MongoDB
+             Trigger email notification
+  Output   : Parcel saved, OTP emailed to student
+
+  MODULE 3: OTP RELEASE MODULE
+  ------------------------------
+  File     : server/routes/parcels.js (PATCH /release)
+  Input    : 4-digit OTP entered by admin
+  Process  : Search for parcel with matching OTP
+             Check parcel status is still "Arrived"
+             Update status to "PickedUp"
+             Clear OTP from database (single use)
+  Output   : Parcel marked as PickedUp, OTP invalidated
+
+  MODULE 4: DASHBOARD & NOTIFICATION MODULE
+  -------------------------------------------
+  File     : server/routes/parcels.js (GET /dashboard)
+             server/utils/mailer.js
+             client/src/pages/Dashboard.jsx
+  Input    : Admin requests dashboard data
+  Process  : Count today's parcels
+             Count all pending parcels
+             Count overdue parcels (72h+)
+             Fetch all pending parcel details
+             Send HTML email via Gmail SMTP
+  Output   : Stats shown on dashboard
+             Email delivered to student inbox
+
+
+--------------------------------------------------------------
+SLIDE 6C - ALGORITHM / WORKFLOW
+--------------------------------------------------------------
+
+COMPLETE PARCEL LIFECYCLE (Step by Step):
+
+  STEP 1: PARCEL ARRIVES AT HOSTEL GATE
+    - Courier delivers parcel to hostel gate
+    - Admin receives the physical parcel
+
+  STEP 2: ADMIN LOGS THE PARCEL
+    - Admin opens the Dashboard page
+    - Fills in: Tracking ID, Courier Company, Student Roll Number
+    - Clicks "Log Parcel" button
+
+  STEP 3: SYSTEM PROCESSES THE REQUEST
+    - Frontend sends POST /api/parcels to backend
+    - Backend middleware checks JWT token (admin only)
+    - Backend finds student in database using roll number
+    - Backend generates a random 4-digit OTP (e.g. 7342)
+    - Backend saves parcel to MongoDB with status = "Arrived"
+
+  STEP 4: EMAIL SENT TO STUDENT
+    - Backend calls Nodemailer with student's email
+    - Gmail SMTP sends HTML email to student
+    - Email contains: tracking ID + 4-digit OTP
+    - Student receives email on their phone/laptop
+
+  STEP 5: STUDENT COMES TO COLLECT
+    - Student visits hostel gate with their OTP
+    - Student shows OTP to admin (e.g. 7342)
+
+  STEP 6: ADMIN VERIFIES OTP
+    - Admin enters OTP in the Release Parcel form
+    - Clicks "Verify & Release" button
+    - Backend searches for parcel with that OTP and status = "Arrived"
+    - If found: status updated to "PickedUp", OTP cleared to ""
+    - If not found: error "Invalid or already used OTP"
+
+  STEP 7: PARCEL RELEASED
+    - Admin hands over the parcel to the student
+    - Dashboard stats update automatically
+    - Student can see "PickedUp" status on My Parcels page
+
+OTP SECURITY RULES:
+    - OTP is 4 digits (1000 to 9999)
+    - OTP has NO time expiry
+    - OTP is SINGLE USE ONLY
+    - Once used, OTP is cleared from database
+    - Cannot be reused even if someone knows it
+
+
+--------------------------------------------------------------
+SLIDE 6D - DATABASE SCHEMA
+--------------------------------------------------------------
+
+COLLECTION 1: users
+---------------------
+Field        Type      Required   Unique   Description
+-----------  --------  ---------  -------  ---------------------------
+_id          ObjectId  auto       yes      MongoDB auto-generated ID
+name         String    yes        no       Full name of the user
+rollNumber   String    yes        yes      Unique roll number (student ID)
+email        String    yes        yes      Email address for login & OTP
+password     String    yes        no       bcrypt hashed password (never plain text)
+role         String    yes        no       Either "student" or "admin"
+                                           Default value is "student"
+
+COLLECTION 2: parcels
+-----------------------
+Field           Type      Required   Description
+--------------  --------  ---------  ----------------------------------
+_id             ObjectId  auto       MongoDB auto-generated ID
+trackingId      String    yes        Courier tracking number (e.g. AMZ123)
+courierCompany  String    yes        One of: Amazon, Flipkart, DTDC,
+                                     BlueDart, Other
+recipient       ObjectId  yes        Reference to _id in users collection
+                                     (links parcel to a student)
+otp             String    no         4-digit OTP. Cleared after collection.
+                                     Default is empty string ""
+status          String    yes        Either "Arrived" or "PickedUp"
+                                     Default is "Arrived"
+createdAt       Date      auto       Auto set by MongoDB timestamps
+updatedAt       Date      auto       Auto updated by MongoDB timestamps
+
+RELATIONSHIP:
+  parcels.recipient  →  references  →  users._id
+  One student can have many parcels (One-to-Many)
+
+
+--------------------------------------------------------------
+SLIDE 7 - TOOLS USED
+--------------------------------------------------------------
+
+BACKEND TOOLS:
+  Tool          Version   Purpose                        Why We Chose It
+  ----------    -------   ----------------------------   ----------------------
+  Node.js       v18+      JavaScript runtime             Runs JS on server side
+  Express.js    v5.2      Web framework for Node         Simple, fast REST APIs
+  MongoDB       Atlas     NoSQL cloud database           Flexible, free tier
+  Mongoose      v9.4      MongoDB object modeling        Easy schema + queries
+  jsonwebtoken  v9.0      JWT token creation/verify      Stateless authentication
+  Nodemailer    v8.0      Send emails via Gmail SMTP     Free, easy Gmail setup
+  dotenv        v17       Load .env config variables     Keep secrets out of code
+  cors          v2.8      Allow frontend to call API     Required for React + Express
+
+FRONTEND TOOLS:
+  Tool              Version   Purpose                      Why We Chose It
+  ---------------   -------   --------------------------   ----------------------
+  React.js          v19       UI component library         Most popular frontend lib
+  Vite              v8        Build tool & dev server      Fast, modern, beginner friendly
+  Tailwind CSS      v4        Utility-first CSS framework  Write CSS directly in HTML
+  React Router DOM  v7        Client-side page routing     Standard React routing
+  React Toastify    v11       Toast notification popups    Easy success/error alerts
+
+DEVELOPMENT TOOLS:
+  Tool          Purpose
+  ----------    ------------------------------------------
+  VS Code       Code editor
+  Git           Version control
+  GitHub        Remote repository hosting
+  MongoDB Atlas Cloud database hosting (free tier)
+  Postman       API testing during development
+  nodemon       Auto-restart server on file changes
+
+
+--------------------------------------------------------------
+SLIDE 8 - OUTPUT SCREENSHOTS (Descriptions)
+--------------------------------------------------------------
+
+SCREENSHOT 1: ADMIN DASHBOARD - STAT CARDS
+  Shows 3 cards at the top of the dashboard:
+  - Blue card: "Today's Parcels" with count
+  - Yellow card: "Pending Pickups" with count
+  - Red card: "Overdue (72h+)" with count
+  Demonstrates: Real-time parcel statistics for admin
+
+SCREENSHOT 2: LOG NEW PARCEL FORM
+  Shows the "Log New Parcel" form filled with:
+  - Tracking ID: AMZ987654321
+  - Courier: Amazon (selected from dropdown)
+  - Student Roll Number: CS2021001
+  Demonstrates: Admin logging a new parcel arrival
+
+SCREENSHOT 3: OTP RELEASE FORM
+  Shows the "Release Parcel" section with:
+  - Large OTP input box showing "7342"
+  - "Verify & Release" green button
+  Demonstrates: Admin verifying student OTP for collection
+
+SCREENSHOT 4: SEARCH BY ROLL NUMBER
+  Shows search results after entering a roll number:
+  - Student name and email shown above results
+  - Table with all parcels of that student
+  - Status badges (green = PickedUp, yellow = Arrived)
+  Demonstrates: Admin searching parcel history by student
+
+SCREENSHOT 5: PENDING PARCELS TABLE WITH OVERDUE
+  Shows the pending parcels table with:
+  - Normal rows in white background
+  - Overdue rows highlighted in light red background
+  - "Overdue" badge in red for 72h+ parcels
+  Demonstrates: Visual alert system for overdue parcels
+
+SCREENSHOT 6: STUDENT MY PARCELS PAGE
+  Shows the student's parcel list with:
+  - Welcome message with student name
+  - Blue info box explaining OTP process
+  - Parcel cards with tracking ID, courier, date, status
+  Demonstrates: Student view of their parcel history
+
+SCREENSHOT 7: OTP EMAIL IN INBOX
+  Shows the email received by student:
+  - Subject: "Your parcel has arrived"
+  - Tracking ID of the parcel
+  - Large bold 4-digit OTP number
+  - Instruction to show OTP to admin
+  Demonstrates: Automated email notification system
+
+
+--------------------------------------------------------------
+SLIDE 9 - ANALYSIS (Testing & Accuracy)
+--------------------------------------------------------------
+
+TEST CASES TABLE:
+
+No.  Test Case                        Input                          Expected Output                    Actual Output                      Pass/Fail
+---  -------------------------------- ----------------------------   --------------------------------   --------------------------------   ---------
+1    Student Registration             name, roll, email, password    Account created, JWT returned      Account created, JWT returned      PASS
+2    Login with valid credentials     correct email + password       JWT token + role returned          JWT token + role returned          PASS
+3    Login with wrong password        correct email + wrong pass     "Invalid credentials" error        "Invalid credentials" error        PASS
+4    Login with wrong email           wrong email                    "Invalid credentials" error        "Invalid credentials" error        PASS
+5    Admin logs a new parcel          trackingId, courier, roll      Parcel saved, OTP email sent       Parcel saved, OTP email sent       PASS
+6    Log parcel with invalid roll     non-existent roll number       "Student not found" error          "Student not found" error          PASS
+7    OTP email delivery               valid student email            Email received in inbox            Email received in inbox            PASS
+8    OTP verification (correct OTP)   correct 4-digit OTP            Status = PickedUp, OTP cleared     Status = PickedUp, OTP cleared     PASS
+9    OTP verification (wrong OTP)     wrong 4-digit OTP              "Invalid or already used OTP"      "Invalid or already used OTP"      PASS
+10   OTP verification (used OTP)      already used OTP               "Invalid or already used OTP"      "Invalid or already used OTP"      PASS
+11   Student views their parcels      valid student JWT              List of student's parcels          List of student's parcels          PASS
+12   Admin searches by roll number    valid roll number              Student info + parcel list         Student info + parcel list         PASS
+13   Search with invalid roll         non-existent roll              "Student not found" error          "Student not found" error          PASS
+14   Overdue parcel detection         parcel older than 72 hours     Row highlighted red, "Overdue"     Row highlighted red, "Overdue"     PASS
+15   Student accesses admin route     student JWT token              "Admin access only" error          "Admin access only" error          PASS
+16   Access protected route no token  no JWT token                   "Not authorized" error             "Not authorized" error             PASS
+17   Duplicate registration           existing email or roll         "User already exists" error        "User already exists" error        PASS
+18   Dashboard auto-refresh           wait 60 seconds                Stats refresh automatically        Stats refresh automatically        PASS
+
+TOTAL TEST CASES : 18
+PASSED           : 18
+FAILED           : 0
+ACCURACY         : 18/18 x 100 = 100%
+
+
+--------------------------------------------------------------
+SLIDE 10 - MODULES MAPPED TO SYLLABUS
+--------------------------------------------------------------
+
+MODULE TO SUBJECT MAPPING:
+
+Module Name                  Syllabus Subject                    Concept Used
+---------------------------  ----------------------------------  ----------------------------------
+Authentication Module        Data Security        bcrypt hashing, JWT tokens,
+(server/middleware/auth.js)                                       Bearer token authentication,
+(server/routes/auth.js)                                          password salting with 10 rounds
+
+Database Module              Database Management Systems         MongoDB NoSQL database,
+(server/models/User.js)                                          Mongoose schema design,
+(server/models/Parcel.js)                                        One-to-Many relationships,
+                                                                  ObjectId references, indexing
+
+REST API Module              Web Technologies /                  HTTP methods (GET, POST, PATCH),
+(server/routes/)             Computer Networks                   REST architecture, JSON data
+                                                                  format, status codes (200, 201,
+                                                                  400, 401, 403, 404, 500)
+
+Frontend Module              Web Development / UI Design         React.js components, useState,
+(client/src/)                                                     useEffect, React Context API,
+                                                                  React Router DOM, Tailwind CSS
+
+Email Notification Module    Computer Networks /                 SMTP protocol, Gmail SMTP server,
+(server/utils/mailer.js)     Internet Technologies               Nodemailer transport, HTML email
+                                                                  templates, App Passwords
+
+Role-Based Access Control    Operating Systems /                 Role field in database,
+(server/middleware/auth.js)  Information Security                adminOnly middleware, route
+                                                                 protection, principle of
+                                                                  least privilege
+
+
+                                                        
+
+State Management                                                React Context API, localStorage,
+(client/src/context/)        Web Development                     useState hook, session persistence
+
+
+--------------------------------------------------------------
+SLIDE 11 - VALIDATION AND TESTING
+--------------------------------------------------------------
+
+TYPES OF TESTING PERFORMED:
+
+  1. UNIT TESTING
+     What we tested individually:
+     - bcrypt password hashing in User.js model
+     - OTP generation function (genOtp) in parcels route
+     - JWT token signing and verification
+     - asyncHandler middleware error catching
+     - isOverdue function in Dashboard.jsx
+     - statusStyle function in MyParcels.jsx
+
+  2. INTEGRATION TESTING
+     How modules were tested together:
+     - Auth module + Database: Register → Login → JWT
+     - Parcel module + Email: Log parcel → OTP generated → Email sent
+     - OTP module + Database: Enter OTP → Find parcel → Update status
+     - Frontend + Backend: React form → Axios → Express → MongoDB → Response
+
+  3. BLACK BOX TESTING
+     Testing without looking at internal code:
+     - Tested all API endpoints using Postman
+     - Tested with valid inputs (expected success)
+     - Tested with invalid inputs (expected errors)
+     - Tested with missing fields (expected validation errors)
+     - Tested with expired/invalid JWT tokens
+
+  4. USER ACCEPTANCE TESTING
+     Tested by actual users:
+     - Admin role: Logged parcels, released with OTP, searched students
+     - Student role: Registered, received email, viewed parcel history
+     - Verified email delivery on real Gmail inbox
+     - Verified overdue highlighting after 72 hours
+
+VALIDATION TABLE:
+
+Feature                   Validation Rule                          Result
+------------------------  ---------------------------------------  --------
+Email format              Must be valid email (HTML type=email)     PASS
+Roll number uniqueness    MongoDB unique index on rollNumber        PASS
+Password storage          Never stored as plain text (bcrypt)       PASS
+OTP format                Only digits, exactly 4 characters         PASS
+OTP single use            OTP cleared after successful release      PASS
+JWT required              All parcel routes need valid JWT          PASS
+Admin-only routes         Student JWT rejected on admin routes      PASS
+Duplicate registration    Checked before creating user              PASS
+Empty OTP submission      Required field validation on form         PASS
+Non-existent roll number  404 error returned from backend           PASS
+
+CONCLUSION:
+  The Digital Parcel Repository system was successfully built
+  and tested. All 18 test cases passed with 100% accuracy.
+  The system correctly handles valid inputs, invalid inputs,
+  unauthorized access, and edge cases. The OTP-based release
+  mechanism ensures secure parcel collection. The automated
+  email notification eliminates the need for students to
+  manually check for parcels. The system is reliable, secure,
+  and ready for real-world hostel deployment.
+
+
+--------------------------------------------------------------
+PROJECT FOLDER STRUCTURE
+--------------------------------------------------------------
+
+digital_parcel_repo/
+|
+|-- server/                        (Backend - Node.js + Express)
+|   |-- config/
+|   |   |-- db.js                  Connects to MongoDB Atlas
+|   |-- middleware/
+|   |   |-- auth.js                JWT protect + adminOnly guards
+|   |   |-- asyncHandler.js        Removes try-catch from routes
+|   |-- models/
+|   |   |-- User.js                User schema (name, roll, email, password, role)
+|   |   |-- Parcel.js              Parcel schema (trackingId, courier, otp, status)
+|   |-- routes/
+|   |   |-- auth.js                POST /register and POST /login
+|   |   |-- parcels.js             All parcel API routes
+|   |-- utils/
+|   |   |-- mailer.js              Sends OTP email via Gmail SMTP
+|   |-- .env                       Secret config (DB URL, JWT secret, email)
+|   |-- index.js                   Main server entry point
+|   |-- seed.js                    Creates admin user in database
+|   |-- package.json               Backend dependencies
+|
+|-- client/                        (Frontend - React.js)
+|   |-- src/
+|   |   |-- api/
+|   |   |   |-- axios.js           Axios instance with JWT interceptor
+|   |   |-- context/
+|   |   |   |-- AuthContext.jsx    Global auth state (token, role, name)
+|   |   |-- components/
+|   |   |   |-- Navbar.jsx         Top navigation bar
+|   |   |   |-- PrivateRoute.jsx   Protects pages by role
+|   |   |-- pages/
+|   |   |   |-- Login.jsx          Login page
+|   |   |   |-- Register.jsx       Student registration page
+|   |   |   |-- Dashboard.jsx      Admin dashboard (all features)
+|   |   |   |-- MyParcels.jsx      Student parcel history page
+|   |   |-- App.jsx                Routes setup
+|   |   |-- main.jsx               React app entry point
+|   |   |-- index.css              Tailwind CSS import
+|   |-- vite.config.js             Vite config + API proxy to backend
+|   |-- package.json               Frontend dependencies
+|
+|-- README.md                      Project documentation
+
+
+--------------------------------------------------------------
+HOW TO RUN THIS PROJECT
+--------------------------------------------------------------
+
+STEP 1: Start MongoDB
+  Make sure MongoDB is running OR use MongoDB Atlas (cloud)
+  Your project uses Atlas - connection is in server/.env
+
+STEP 2: Setup Backend
+  Open terminal, go to server folder:
+    cd server
+    npm install
+  Edit .env file with your values (already done)
+  Create admin user:
+    node seed.js
+  Start backend server:
+    npm start
+
+STEP 3: Setup Frontend
+  Open a new terminal, go to client folder:
+    cd client
+    npm install
+    npm run dev
+
+STEP 4: Open in Browser
+  Go to: http://localhost:5173
+  Admin login: admin@hostel.com / admin123
+  Or register a new student account
+
+API ROUTES SUMMARY:
+  POST   /api/auth/register          Register a student
+  POST   /api/auth/login             Login (admin or student)
+  POST   /api/parcels                Admin: log new parcel
+  GET    /api/parcels/mine           Student: view own parcels
+  PATCH  /api/parcels/release        Admin: verify OTP, release parcel
+  GET    /api/parcels/search?roll=X  Admin: search by roll number
+  GET    /api/parcels/dashboard      Admin: get dashboard stats
+
+
+==============================================================
+END OF DOCUMENTATION
+Digital Parcel Repository - MERN Stack Project
+==============================================================

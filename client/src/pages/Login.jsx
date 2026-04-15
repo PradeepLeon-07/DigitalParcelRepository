@@ -37,9 +37,6 @@ const Login = () => {
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
-        // This blurs whatever is BEHIND this div
-        backdropFilter: 'blur(8px)',
-        WebkitBackdropFilter: 'blur(8px)', // Support for Safari
       }}>
       <div className="bg-white/50 rounded-lg shadow p-8 w-full max-w-sm backdrop-blur-sm">
 
